@@ -1,3 +1,0 @@
-auth123
-auth456
-auth789
