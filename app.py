@@ -1,5 +1,4 @@
-
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, flash, make_response
 from flask_sqlalchemy import SQLAlchemy
 import os
 
@@ -38,18 +37,34 @@ def add_location():
         code = request.form['auth_code']
         if code not in valid_auth_codes:
             return "Unauthorized: Invalid Code", 403
-        data = request.form
+
+        # Check for duplicate
+        existing = ShakhaLocation.query.filter_by(
+            state=request.form['state'],
+            district=request.form['district'],
+            city=request.form['city'],
+            basti=request.form['basti'],
+            shakha_name=request.form['shakha'],
+            latitude=request.form['latitude'],
+            longitude=request.form['longitude']
+        ).first()
+
+        if existing:
+            flash("Duplicate entry. This Shakha already exists.", "warning")
+            return redirect('/')
+
         new_location = ShakhaLocation(
-            state=data['state'],
-            district=data['district'],
-            city=data['city'],
-            basti=data['basti'],
-            shakha_name=data['shakha'],
-            latitude=data['latitude'],
-            longitude=data['longitude']
+            state=request.form['state'],
+            district=request.form['district'],
+            city=request.form['city'],
+            basti=request.form['basti'],
+            shakha_name=request.form['shakha'],
+            latitude=request.form['latitude'],
+            longitude=request.form['longitude']
         )
         db.session.add(new_location)
         db.session.commit()
+        flash("Shakha location added successfully.", "success")
         return redirect('/')
     return render_template('add_location.html')
 
@@ -111,6 +126,23 @@ def admin_delete(id):
     db.session.commit()
     flash("Location deleted successfully.", "success")
     return redirect('/admin/dashboard')
+
+@app.route('/admin/export')
+def export_shakhas():
+    if not session.get('admin'):
+        return redirect('/admin/login')
+    shakhas = ShakhaLocation.query.all()
+    rows = [['ID', 'State', 'District', 'City', 'Basti', 'Shakha Name', 'Latitude', 'Longitude']]
+    for loc in shakhas:
+        rows.append([
+            str(loc.id), loc.state, loc.district, loc.city,
+            loc.basti, loc.shakha_name, str(loc.latitude), str(loc.longitude)
+        ])
+    csv_data = '\n'.join([','.join(row) for row in rows])
+    response = make_response(csv_data)
+    response.headers['Content-Disposition'] = 'attachment; filename=shakha_export.csv'
+    response.headers['Content-Type'] = 'text/csv'
+    return response
 
 if __name__ == '__main__':
     with app.app_context():
