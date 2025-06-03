@@ -1,0 +1,23 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Shakha Location</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="bg-light">
+<div class="container mt-4">
+  <h2>Edit Shakha Location</h2>
+  <form method="POST">
+    {% for field in ['state', 'district', 'city', 'basti', 'shakha_name', 'latitude', 'longitude'] %}
+      <div class="mb-3">
+        <label class="form-label text-capitalize">{{ field.replace('_', ' ') }}</label>
+        <input type="text" name="{{ field }}" class="form-control" value="{{ getattr(shakha, field) }}">
+      </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-success">Update</button>
+  </form>
+</div>
+</body>
+</html>
