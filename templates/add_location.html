@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Add Shakha</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fffaf0;
+    }
+    .header {
+      background-color: #ff6f00;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    .btn-orange {
+      background-color: #ff6f00;
+      color: white;
+    }
+    .btn-orange:hover {
+      background-color: #e65c00;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2>📍 Add RSS Shakha Location</h2>
+  </div>
+
+  <div class="container mt-4">
+    <form method="POST">
+      <div class="mb-3"><label>Authorization Code</label><input type="text" name="auth_code" class="form-control" required></div>
+      <div class="mb-3"><label>State</label><input type="text" name="state" class="form-control" required></div>
+      <div class="mb-3"><label>District</label><input type="text" name="district" class="form-control" required></div>
+      <div class="mb-3"><label>City</label><input type="text" name="city" class="form-control" required></div>
+      <div class="mb-3"><label>Basti</label><input type="text" name="basti" class="form-control" required></div>
+      <div class="mb-3"><label>Shakha Name</label><input type="text" name="shakha" class="form-control" required></div>
+      <div class="mb-3"><label>Latitude</label><input type="text" name="latitude" id="latitude" class="form-control" required></div>
+      <div class="mb-3"><label>Longitude</label><input type="text" name="longitude" id="longitude" class="form-control" required></div>
+      <button type="button" class="btn btn-secondary" onclick="getLocation()">📍 Use Current Location</button>
+      <button type="submit" class="btn btn-orange">Add Location</button>
+    </form>
+  </div>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          document.getElementById('latitude').value = position.coords.latitude;
+          document.getElementById('longitude').value = position.coords.longitude;
+        }, function(error) {
+          alert('Error fetching location.');
+        });
+      } else {
+        alert('Geolocation not supported.');
+      }
+    }
+  </script>
+</body>
+</html>
