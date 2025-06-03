@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RSS Shakha Connect</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-4">
+    <h2 class="text-center mb-4">🔍 RSS Shakha Locator</h2>
+    <div class="mb-3">
+      <select id="shakha-select" class="form-select">
+        <option selected disabled>Select a Shakha</option>
+        {% for shakha in shakhas %}
+        <option value="{{ shakha.id }}">{{ shakha.shakha_name }} ({{ shakha.basti }}, {{ shakha.city }})</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div id="map" style="height: 500px;"></div>
+  </div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([20.5937, 78.9629], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    document.getElementById("shakha-select").addEventListener("change", async function () {
+      const id = this.value;
+      const res = await fetch(`/get_location/${id}`);
+      const data = await res.json();
+      map.setView([data.lat, data.lng], 15);
+      L.marker([data.lat, data.lng]).addTo(map)
+        .bindPopup(`<b>${data.shakha}</b><br>${data.basti}, ${data.city}<br><a href="https://www.google.com/maps?q=${data.lat},${data.lng}" target="_blank">Navigate</a>`)
+        .openPopup();
+    });
+  </script>
+</body>
+</html>
